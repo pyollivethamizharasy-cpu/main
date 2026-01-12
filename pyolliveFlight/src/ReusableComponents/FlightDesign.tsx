@@ -9,17 +9,16 @@ import LeftVector from "../assets/leftsidevector.png";
 
 const SelectDeparture = () => {
     return (
-        <div >
+        <div className="relative">
             <div
                 className="
                     w-[1209px]
                     h-[204px]
                     rounded-[42px]
                     opacity-100
-                    bg-[linear-gradient(90.13deg,#0F84DA_39.83%,#084674_143.23%)]
+                   bg-[linear-gradient(90deg,#4B5E4B_0%,#233523_100%)]
                     p-0
                     flex
-                    items-center
                     justify-evenly
                     gap-4">
                         <div> <img src={RightsideFlight} alt="rightsideFlight" /></div>

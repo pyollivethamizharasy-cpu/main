@@ -2,15 +2,11 @@
 import FlightDeparture from "../ReusableComponents/FlightDeparture";
 import FlightDesign from "../ReusableComponents/FlightDesign";
 
-const AllFlight = () =>{
-    return(
-        <div>
-           <div>
+const AllFlight = () => {
+    return (
+        <div className="relative flex justify-center">
             <FlightDesign />
-           </div>
-           <div>
             <FlightDeparture />
-           </div>
         </div>
     )
 }
