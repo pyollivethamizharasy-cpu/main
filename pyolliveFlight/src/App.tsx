@@ -1,12 +1,12 @@
 // import { useState } from 'react'
 import './App.css'
-import SelectDeparture from './Flights/SelectDeparture';
+import AllFlight from '../src/common/pyollivfly';
 
 function App() {
 
   return (
     <div>
-      <SelectDeparture />
+      <AllFlight />
     </div>
   )
 }
