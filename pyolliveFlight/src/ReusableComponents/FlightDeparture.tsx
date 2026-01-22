@@ -3,18 +3,28 @@ import LeftVector from "../assets/leftsidevector.svg";
 import Sort from "../assets/Sort.svg";
 import Dropdown from "../assets/dropdown.svg";
 import '../../src/ReusableComponents/FlightDeparture.css';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
 
 
-const locations = [
-    "Delhi",
-    "Mumbai",
-    "Bangalore",
-    "Chennai",
-    "Pune",
-    "Kolkata",
-    "Hyderabad",
-    "Goa",
+// const locations = [
+//     "Delhi",
+//     "Mumbai",
+//     "Bangalore",
+//     "Chennai",
+//     "Pune",
+//     "Kolkata",
+//     "Hyderabad",
+//     "Goa",
+// ]
+
+const fareOptions = [
+    "Regular",
+    "Student",
+    "Senior Citizen",
+    "Armed Forces",
+    "Doctor and Nurses",
 ]
+
 
 export function TripType() {
     const [trip, setTrip] = useState<"oneway" | "round">("oneway");
@@ -22,9 +32,12 @@ export function TripType() {
     // optional swap logic
     const [fromCity, setFromCity] = useState("Delhi");
     const [toCity, setToCity] = useState("Mumbai");
+    const [selectedFareOption, setSelectedFareOption] = useState("Regular");
+
+    const isRegularSelected = selectedFareOption === "Regular";
 
     //Search Logic
-    const [search, setSearch] = useState("");
+    // const [search, setSearch] = useState("");
     const [open, setOpen] = useState<"From" | "To" | null>(null);
 
     const swapCities = () => {
@@ -32,16 +45,16 @@ export function TripType() {
         setToCity(fromCity);
     };
 
-    const handleselect = (city: string) => {
-        if (open === "From") {
-            setFromCity(city);
-        } else if (open === "To") {
-            setToCity(city);
-        }
+    // const handleselect = (city: string) => {
+    //     if (open === "From") {
+    //         setFromCity(city);
+    //     } else if (open === "To") {
+    //         setToCity(city);
+    //     }
 
-        setOpen(null);     // close modal
-        setSearch("");
-    }
+    //     setOpen(null);     // close modal
+    //     setSearch("");
+    // }
 
 
     return (
@@ -115,7 +128,7 @@ export function TripType() {
 
                 {/* MAIN CONTENT */}
                 <div className="p-6">
-                    <div className="rounded-xl p-[1.05px] border-[0.95px] border-[#C5C5C5] hover:bg-[#F7FFF7] cursor-pointer pointer-events-auto">
+                    <div className="rounded-xl p-[1.05px] bg-gradient-to-r from-[#AA6A00] via-[#004857] via-[#3783F1] to-[#292B82] hover:bg-[#F7FFF7] cursor-pointer pointer-events-auto">
                         <div className="rounded-xl bg-white">
                             <div className="relative grid grid-cols-5 gap-4 p-4">
                                 {/* FULL HEIGHT VERTICAL DIVIDER */}
@@ -135,23 +148,62 @@ export function TripType() {
                                 </button>
 
                                 {/* FROM */}
-                                <div className="pr-6 cursor-pointer" onClick={()=> setOpen("From")} >
+                                {/* FROM */}
+                                <div className="pr-6 cursor-pointer relative" onClick={() => setOpen("From")}>
                                     <p className="dept_way">From</p>
-                                    <p className="text-[20px] font-semibold">Delhi</p>
+                                    <p className="text-[20px] font-semibold">{fromCity}</p>
                                     <p className="text-[12px] text-[#6B7280]">
-                                        DEL, Delhi Airport India
+                                        {fromCity === "Delhi" && "DEL, Delhi Airport India"}
+                                        {fromCity === "Mumbai" && "BOM, Chhatrapati Shivaji International"}
+                                        {fromCity === "Bangalore" && "BLR, Kempegowda International"}
                                     </p>
+
+                                    {open === "From" && (
+                                        <div className="absolute top-full mt-2 w-[300px] bg-white shadow-lg rounded-lg z-50">
+                                            {["Delhi", "Mumbai", "Bangalore"].map(city => (
+                                                <div
+                                                    key={city}
+                                                    onClick={() => {
+                                                        setFromCity(city);
+                                                        setOpen(null);
+                                                    }}
+                                                    className="p-3 hover:bg-[#F0F6FF] cursor-pointer"
+                                                >
+                                                    <p className="font-semibold">{city}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* TO */}
-                                <div className="pl-6 cursor-pointer" onClick={()=> setOpen("To")}>
+                                <div className="pl-6 cursor-pointer relative" onClick={() => setOpen("To")}>
                                     <p className="dept_way">To</p>
-                                    <p className="text-[20px] font-semibold">Mumbai</p>
+                                    <p className="text-[20px] font-semibold">{toCity}</p>
                                     <p className="text-[12px] text-[#6B7280] truncate">
-                                        BOM, Chhatrapati Shivaji International…
+                                        {toCity === "Delhi" && "DEL, Delhi Airport India"}
+                                        {toCity === "Mumbai" && "BOM, Chhatrapati Shivaji International"}
+                                        {toCity === "Bangalore" && "BLR, Kempegowda International"}
                                     </p>
 
+                                    {open === "To" && (
+                                        <div className="absolute top-full mt-2 w-[300px] bg-white shadow-lg rounded-lg z-50">
+                                            {["Delhi", "Mumbai", "Bangalore"].map(city => (
+                                                <div
+                                                    key={city}
+                                                    onClick={() => {
+                                                        setToCity(city);
+                                                        setOpen(null);
+                                                    }}
+                                                    className="p-3 hover:bg-[#F0F6FF] cursor-pointer"
+                                                >
+                                                    <p className="font-semibold">{city}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
+
 
 
                                 {/* OTHER FIELDS */}
@@ -171,12 +223,93 @@ export function TripType() {
                         </div>
                     </div>
                 </div>
+                <div>
+                    <div>
+                        <TooltipProvider delayDuration={200}>
+                            <div className="px-6 flex items-center flex-wrap gap-2">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="font-poppins font-semibold text-[12px] leading-[1] tracking-normal text-[#000000] flex items-center">SPECIAL FARES <span className="font-poppins font-medium text-[12px] leading-[100%] tracking-normal text-[#888888]">(Optional)</span> :</div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="text-xs">
+                                        Select a special fare if applicable
+                                    </TooltipContent>
 
+                                </Tooltip>
+
+
+                                <div
+                                    onClick={() => setSelectedFareOption("Regular")}
+                                    className={`ml-2 special_fares flex items-center justify-center cursor-pointer ${isRegularSelected
+                                        ? "bg-[#0084E8] text-white font-semibold"
+                                        : "bg-[#F5F5F5] text-[#323232] hover:bg-[#d7d3d3]"
+                                        }`}
+                                >
+                                    <span className="font-poppins font-normal text-[12px] leading-[100%] tracking-normal">
+                                        Regular
+                                    </span>
+                                </div>
+
+                                {[
+                                    { Label: "Student", tip: "This offer is applicable to students aged 12+ only. A valid student ID and student visa (if required) are mandatory." },
+                                    { Label: "Senior Citizen", tip: "Applicable to senior citizens aged 60 years and above. Valid date-of-birth proof required at the airport." },
+                                    { Label: "Armed Forces", tip: "Eligible for serving/retired Indian Armed Forces members and dependents. Valid ID must be presented at the airport." },
+                                    { Label: "Doctor and Nurses", tip: "Applicable to senior citizens aged 60 years and above. Valid date-of-birth proof required at the airport." },
+                                ].map((fare) => {
+                                    const isSelected = selectedFareOption === fare.Label;
+                                    return (
+                                        <Tooltip key={fare.Label}>
+                                            <TooltipTrigger asChild>
+                                                <div
+                                                    onClick={() => setSelectedFareOption(fare.Label)}
+                                                    className={`ml-2 special_fares flex items-center justify-center cursor-pointer ${isSelected
+                                                        ? "bg-[#0084E8] text-white font-semibold"
+                                                        : "bg-[#F5F5F5] text-[#323232] hover:bg-[#d7d3d3]"
+                                                        }`}
+                                                >
+                                                    <span className="font-poppins font-normal text-[12px] leading-[100%] tracking-normal">
+                                                        {fare.Label}
+                                                    </span>
+                                                </div>
+                                            </TooltipTrigger>
+
+                                            <TooltipContent
+                                                side="bottom"
+                                                className="text-xs w-[319px] h-[76px] bg-[#fff] text-[#000000]
+                                                opacity-100 rounded-tl-[12px] rounded-tr-[2px] rounded-br-[12px] rounded-bl-[12px]
+                                                shadow-[0_0_10.52px_0px_#00000026]"
+                                            >
+                                                {fare.tip}
+                                            </TooltipContent>
+                                        </Tooltip>
+
+                                    )
+                                }
+                                    // (
+                                    // <Tooltip key={fare.Label}>
+                                    //     <TooltipTrigger asChild>
+                                    //         <div className="ml-2 special_fares flex items-center justify-center cursor-pointer hover:bg-[#d7d3d3]"><span className="font-poppins text-[#323232] font-normal text-[12px] leading-[100%] tracking-normal">{fare.Label}</span></div>
+                                    //     </TooltipTrigger>
+                                    //     <TooltipContent side="bottom" className="text-xs w-[319px] h-[76px] bg-[#fff] text-[#000000]
+                                    //                     opacity-100 rounded-tl-[12px] rounded-tr-[2px] rounded-br-[12px] rounded-bl-[12px] shadow-[0_0_10.52px_0px_#00000026]">
+                                    //         {fare.tip}
+                                    //     </TooltipContent>
+                                    // </Tooltip>)
+                                )}
+                            </div>
+
+                        </TooltipProvider>
+                    </div>
+                </div>
             </div>
-            
+
         </div>
-        
+
     );
 }
 
 export default TripType;
+
+
+
+
