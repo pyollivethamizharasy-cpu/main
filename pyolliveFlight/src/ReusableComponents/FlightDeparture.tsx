@@ -6,17 +6,6 @@ import '../../src/ReusableComponents/FlightDeparture.css';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
 
 
-// const locations = [
-//     "Delhi",
-//     "Mumbai",
-//     "Bangalore",
-//     "Chennai",
-//     "Pune",
-//     "Kolkata",
-//     "Hyderabad",
-//     "Goa",
-// ]
-
 const fareOptions = [
     "Regular",
     "Student",
@@ -45,6 +34,19 @@ export function TripType() {
         setToCity(fromCity);
     };
 
+    const getAirportName = (city: string) => {
+        switch (city) {
+            case "Delhi":
+                return "DEL, Indira Gandhi International Airport India";
+            case "Mumbai":
+                return "BOM, Chhatrapati Shivaji International Airport";
+            case "Bangalore":
+                return "BLR, Kempegowda International Airport";
+            default:
+                return "";
+        }
+    };
+
     // const handleselect = (city: string) => {
     //     if (open === "From") {
     //         setFromCity(city);
@@ -56,10 +58,37 @@ export function TripType() {
     //     setSearch("");
     // }
 
+    const airports = [
+        {
+            city: "Mumbai",
+            country: "India",
+            code: "BOM",
+            airport: "Chhatrapati Shivaji International Airport",
+        },
+        {
+            city: "Delhi",
+            country: "India",
+            code: "DEL",
+            airport: "Indira Gandhi International Airport",
+        },
+        {
+            city: "Pune",
+            country: "India",
+            code: "PNQ",
+            airport: "Pune Airport",
+        },
+        {
+            city: "Bangalore",
+            country: "India",
+            code: "BLR",
+            airport: "Kempegowda International Airport",
+        },
+    ];
+
 
     return (
         <div className="absolute top-[140px] z-10 w-full flex justify-center">
-            <div className="w-[1106px] h-[266px] bg-white shadow-[0_0_9.01px_0_#AACDFF] rounded-[17px] p-2">
+            <div className="w-[1106px] min-h-[266px] bg-white shadow-[0_0_9.01px_0_#AACDFF] rounded-[17px] p-2 overflow-visible ">
 
                 {/* TOP BAR */}
                 <div className="flex items-center justify-between px-6">
@@ -146,8 +175,6 @@ export function TripType() {
                                 >
                                     <img src={Sort} alt="sort" onClick={swapCities} className="max-w-none" />
                                 </button>
-
-                                {/* FROM */}
                                 {/* FROM */}
                                 <div className="pr-6 cursor-pointer relative" onClick={() => setOpen("From")}>
                                     <p className="dept_way">From</p>
@@ -158,7 +185,7 @@ export function TripType() {
                                         {fromCity === "Bangalore" && "BLR, Kempegowda International"}
                                     </p>
 
-                                    {open === "From" && (
+                                    {/* {open === "From" && (
                                         <div className="absolute top-full mt-2 w-[300px] bg-white shadow-lg rounded-lg z-50">
                                             {["Delhi", "Mumbai", "Bangalore"].map(city => (
                                                 <div
@@ -173,11 +200,52 @@ export function TripType() {
                                                 </div>
                                             ))}
                                         </div>
+                                    )} */}
+                                    {open === "From" && (
+                                        <div className="absolute top-full mt-2 w-[360px] bg-white
+    rounded-xl shadow-[0_6px_20px_rgba(0,0,0,0.15)] z-50">
+
+                                            {/* Search */}
+                                            <div className="flex items-center gap-2 p-3 border-b">
+                                                <span className="text-gray-400">🔍</span>
+                                                <input
+                                                    placeholder="Search city or airport"
+                                                    className="w-full text-sm outline-none"
+                                                />
+                                            </div>
+
+                                            <p className="px-4 pt-3 text-[13px] font-semibold text-gray-700">
+                                                Most Traveled Airports
+                                            </p>
+
+                                            <div className="max-h-[260px] overflow-y-auto">
+                                                {airports.map((a) => (
+                                                    <div
+                                                        key={a.code}
+                                                        onClick={() => {
+                                                            setFromCity(a.city);
+                                                            setOpen(null);
+                                                        }}
+                                                        className="flex gap-3 px-4 py-3 cursor-pointer hover:bg-[#F0F6FF]"
+                                                    >
+                                                        <div>
+                                                            <p className="text-[14px] font-semibold">
+                                                                {a.city}, {a.country}
+                                                            </p>
+                                                            <p className="text-[12px] text-gray-500">
+                                                                {a.code}, {a.airport}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     )}
+
                                 </div>
 
                                 {/* TO */}
-                                <div className="pl-6 cursor-pointer relative" onClick={() => setOpen("To")}>
+                                <div className="pl-6 cursor-pointer relative p-2" onClick={() => setOpen("To")}>
                                     <p className="dept_way">To</p>
                                     <p className="text-[20px] font-semibold">{toCity}</p>
                                     <p className="text-[12px] text-[#6B7280] truncate">
@@ -187,37 +255,86 @@ export function TripType() {
                                     </p>
 
                                     {open === "To" && (
-                                        <div className="absolute top-full mt-2 w-[300px] bg-white shadow-lg rounded-lg z-50">
-                                            {["Delhi", "Mumbai", "Bangalore"].map(city => (
-                                                <div
-                                                    key={city}
-                                                    onClick={() => {
-                                                        setToCity(city);
-                                                        setOpen(null);
-                                                    }}
-                                                    className="p-3 hover:bg-[#F0F6FF] cursor-pointer"
-                                                >
-                                                    <p className="font-semibold">{city}</p>
-                                                </div>
-                                            ))}
+                                        <div className="absolute top-full mt-2 w-[360px] bg-white
+                                            rounded-xl shadow-[0_6px_20px_rgba(0,0,0,0.15)] z-50">
+
+                                            {/* Search */}
+                                            <div className="flex items-center gap-2 p-3 border-b">
+                                                <span className="text-gray-400">🔍</span>
+                                                <input
+                                                    placeholder="Search city or airport"
+                                                    className="w-full text-sm outline-none"
+                                                />
+                                            </div>
+
+                                            <p className="px-4 pt-3 text-[13px] font-semibold text-gray-700">
+                                                Most Traveled Airports
+                                            </p>
+
+                                            <div className="max-h-[260px] overflow-y-auto">
+                                                {airports.map((a) => (
+                                                    <div
+                                                        key={a.code}
+                                                        onClick={() => {
+                                                            setToCity(a.city);
+                                                            setOpen(null);
+                                                        }}
+
+                                                        className="flex gap-3 px-4 py-3 cursor-pointer hover:bg-[#F0F6FF]"
+                                                    >
+                                                        
+                                                        <div>
+                                                            <p className="text-[14px] font-semibold">
+                                                                {a.city}, {a.country}
+                                                            </p>
+                                                            <p className="text-[12px] text-gray-500">
+                                                                {a.code}, {a.airport}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
+
                                 </div>
 
 
 
                                 {/* OTHER FIELDS */}
-                                <div className="dept_way flex gap-2 cursor-pointer p-1">
-                                    <span className="leading-none">Departure</span>
-                                    <img src={Dropdown} className="w-3 h-3" />
-                                </div>
-                                <div className="dept_way flex gap-2 cursor-pointer p-1">
-                                    <span className="leading-none">Return</span>
-                                    <img src={Dropdown} alt="dropdown" className="w-3 h-3" />
+                                <div className="dept_way cursor-pointer p-2">
+                                    <div className="flex gap-2">
+                                        <span className="leading-none">Departure</span>
+                                        <img src={Dropdown} className="w-3 h-3" />
+                                    </div>
+                                    <div className="font-poppins font-semibold text-[23px] py-2 text-[#000000]">18 <span className="font-poppins font-normal text-[14px] text-[#484848]">Dec</span>
+                                        <span className="font-poppins font-normal text-[14px] text-[#484848]">'26</span>
+                                        <p className="font-poppins font-normal text-[14px] text-[#484848]">Thursday</p>
+                                    </div>
+
                                 </div>
 
-                                <div className="dept_way">Traveller & Class </div>
+                                <div className="dept_way cursor-pointer p-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm">Return</span>
+                                        <img src={Dropdown} alt="dropdown" className="w-3 h-3" />
+                                    </div>
 
+                                    <p className="mt-1 text-[14px] font-medium text-[#858484] leading-tight">
+                                        Book round trip to save extra
+                                    </p>
+                                </div>
+
+                                <div className="dept_way p-2">
+                                    <p className="text-sm text-gray-500">Traveller & Class</p>
+
+                                    <div className="mt-1">
+                                        <p className="text-base font-poppins font-semibold text-[23px] text-[#000000]">
+                                            1 <span className="font-normal font-poppins text-[16px] text-[#2C2C2C] font-normal">Traveller</span>
+                                        </p>
+                                        <p className="text-sm font-inter font-normal text-[10.52px] leading-[100%] tracking-normal text-[#6E6E6E]">Economy</p>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
@@ -300,8 +417,14 @@ export function TripType() {
 
                         </TooltipProvider>
                     </div>
+
                 </div>
+                <div className="flex justify-center p-5 ">
+                    <button className="text-[#fff] w-[258px] height-[49px] border-[1px] border-[#4B5E4B] bg-[#4B5E4B] rounded-[24px] font-poppins font-semibold text-[16px] leading-[100%] tracking-normal">Search</button>
+                </div>
+
             </div>
+
 
         </div>
 
