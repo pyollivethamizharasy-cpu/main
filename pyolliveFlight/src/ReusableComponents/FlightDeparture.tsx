@@ -1,63 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+// import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 import LeftVector from "../assets/leftsidevector.svg";
+import type { DateRange } from "react-day-picker";
 import Sort from "../assets/Sort.svg";
 import Dropdown from "../assets/dropdown.svg";
 import '../../src/ReusableComponents/FlightDeparture.css';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../components/ui/tooltip";
+import Search from "../assets/SearchBtn.svg";
+import FlightCalendar from "../ReusableComponents/DateCalendar";
+// import ListPage from "../ReusableComponents/FlightList";
+import { useNavigate } from "react-router-dom";
 
+type Airport = {
+    city: string;
+    country: string;
+    code: string;
+    airport: string;
+};
 
-const fareOptions = [
-    "Regular",
-    "Student",
-    "Senior Citizen",
-    "Armed Forces",
-    "Doctor and Nurses",
-]
 
 
 export function TripType() {
     const [trip, setTrip] = useState<"oneway" | "round">("oneway");
-
-    // optional swap logic
-    const [fromCity, setFromCity] = useState("Delhi");
-    const [toCity, setToCity] = useState("Mumbai");
-    const [selectedFareOption, setSelectedFareOption] = useState("Regular");
-
-    const isRegularSelected = selectedFareOption === "Regular";
-
-    //Search Logic
-    // const [search, setSearch] = useState("");
-    const [open, setOpen] = useState<"From" | "To" | null>(null);
-
-    const swapCities = () => {
-        setFromCity(toCity);
-        setToCity(fromCity);
-    };
-
-    const getAirportName = (city: string) => {
-        switch (city) {
-            case "Delhi":
-                return "DEL, Indira Gandhi International Airport India";
-            case "Mumbai":
-                return "BOM, Chhatrapati Shivaji International Airport";
-            case "Bangalore":
-                return "BLR, Kempegowda International Airport";
-            default:
-                return "";
-        }
-    };
-
-    // const handleselect = (city: string) => {
-    //     if (open === "From") {
-    //         setFromCity(city);
-    //     } else if (open === "To") {
-    //         setToCity(city);
-    //     }
-
-    //     setOpen(null);     // close modal
-    //     setSearch("");
-    // }
-
     const airports = [
         {
             city: "Mumbai",
@@ -84,11 +49,82 @@ export function TripType() {
             airport: "Kempegowda International Airport",
         },
     ];
+    const priceMap: Record<string, number> = {
+  "2025-12-07": 1961,
+  "2025-12-08": 11004,
+  "2025-12-18": 10004,
+  "2026-01-02": 10004,
+  "2026-01-03": 11004,
+  "2026-01-14": 11100,
+};
+
+
+
+
+    // optional swap logic
+    const [fromAirport, setFromAirport] = useState<Airport>(airports[1]); // Delhi
+    const [toAirport, setToAirport] = useState<Airport>(airports[0]);   // Mumbai
+
+    const [selectedFareOption, setSelectedFareOption] = useState("Regular");
+
+    const isRegularSelected = selectedFareOption === "Regular";
+    const [isSearch, setIsSearch] = useState("");
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const calendarRef = useRef<HTMLDivElement>(null);
+
+    const navigate = useNavigate();
+    const handleSearch = () => {
+        navigate("/flightlist");
+    };
+
+    //Search Logic
+    // const [search, setSearch] = useState("");
+    const [open, setOpen] = useState<"From" | "To" | null>(null);
+
+    const swapCities = () => {
+        setFromAirport(toAirport);
+        setToAirport(fromAirport);
+    };
+    const [openCalendar, setOpenCalendar] =
+        useState<"departure" | null>(null);
+
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: new Date(),
+        to: undefined,
+    });
+
+
+
+    useEffect(() => {
+        function handleCalendarOutside(event: MouseEvent) {
+            if (
+                calendarRef.current &&
+                !calendarRef.current.contains(event.target as Node)
+            ) {
+                setOpenCalendar(null);
+            }
+        }
+
+        document.addEventListener("mousedown", handleCalendarOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleCalendarOutside);
+        };
+    }, []);
+
+
+
+
+    const filteredAirports = airports.filter((a) =>
+        `${a.city} ${a.code} ${a.airport}`
+            .toLowerCase()
+            .includes(isSearch.toLowerCase())
+    );
+
 
 
     return (
         <div className="absolute top-[140px] z-10 w-full flex justify-center">
-            <div className="w-[1106px] min-h-[266px] bg-white shadow-[0_0_9.01px_0_#AACDFF] rounded-[17px] p-2 overflow-visible ">
+            <div className="w-[1106px] min-h-[266px] bg-white shadow-[0_0_9.01px_0_#AACDFF] rounded-[17px] p-2 overflow-hidden ">
 
                 {/* TOP BAR */}
                 <div className="flex items-center justify-between px-6">
@@ -178,131 +214,110 @@ export function TripType() {
                                 {/* FROM */}
                                 <div className="pr-6 cursor-pointer relative" onClick={() => setOpen("From")}>
                                     <p className="dept_way">From</p>
-                                    <p className="text-[20px] font-semibold">{fromCity}</p>
-                                    <p className="text-[12px] text-[#6B7280]">
-                                        {fromCity === "Delhi" && "DEL, Delhi Airport India"}
-                                        {fromCity === "Mumbai" && "BOM, Chhatrapati Shivaji International"}
-                                        {fromCity === "Bangalore" && "BLR, Kempegowda International"}
+
+                                    <p className="text-[20px] font-semibold">
+                                        {fromAirport.city}
+                                    </p>
+                                    <p
+                                        className="text-[12px] text-[#6B7280] max-w-[180px] truncate overflow-hidden whitespace-nowrap"
+                                        title={`${fromAirport.code}, ${fromAirport.airport}`}
+                                    >
+                                        {fromAirport.code}, {fromAirport.airport}
                                     </p>
 
-                                    {/* {open === "From" && (
-                                        <div className="absolute top-full mt-2 w-[300px] bg-white shadow-lg rounded-lg z-50">
-                                            {["Delhi", "Mumbai", "Bangalore"].map(city => (
-                                                <div
-                                                    key={city}
-                                                    onClick={() => {
-                                                        setFromCity(city);
-                                                        setOpen(null);
-                                                    }}
-                                                    className="p-3 hover:bg-[#F0F6FF] cursor-pointer"
-                                                >
-                                                    <p className="font-semibold">{city}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )} */}
-                                    {open === "From" && (
-                                        <div className="absolute top-full mt-2 w-[360px] bg-white
-    rounded-xl shadow-[0_6px_20px_rgba(0,0,0,0.15)] z-50">
 
-                                            {/* Search */}
+                                    {open === "From" && (
+                                        <div ref={dropdownRef} className="absolute top-full mt-2 w-[360px] bg-white rounded-xl shadow-lg z-50">
+                                            {/* search */}
                                             <div className="flex items-center gap-2 p-3 border-b">
-                                                <span className="text-gray-400">🔍</span>
+                                                <img src={Search} className="w-4 h-4" />
                                                 <input
+                                                    value={isSearch}
+                                                    onChange={(e) => setIsSearch(e.target.value)}
                                                     placeholder="Search city or airport"
                                                     className="w-full text-sm outline-none"
                                                 />
                                             </div>
 
-                                            <p className="px-4 pt-3 text-[13px] font-semibold text-gray-700">
-                                                Most Traveled Airports
-                                            </p>
-
                                             <div className="max-h-[260px] overflow-y-auto">
-                                                {airports.map((a) => (
+                                                {filteredAirports.map((a) => (
                                                     <div
                                                         key={a.code}
                                                         onClick={() => {
-                                                            setFromCity(a.city);
+                                                            setFromAirport(a);   // ✅ IMPORTANT
                                                             setOpen(null);
                                                         }}
-                                                        className="flex gap-3 px-4 py-3 cursor-pointer hover:bg-[#F0F6FF]"
+                                                        className="px-4 py-3 cursor-pointer hover:bg-[#F0F6FF]"
                                                     >
-                                                        <div>
-                                                            <p className="text-[14px] font-semibold">
-                                                                {a.city}, {a.country}
-                                                            </p>
-                                                            <p className="text-[12px] text-gray-500">
-                                                                {a.code}, {a.airport}
-                                                            </p>
-                                                        </div>
+                                                        <p className="text-[14px] font-semibold">
+                                                            {a.city}, {a.country}
+                                                        </p>
+                                                        <p className="text-[12px] text-gray-500">
+                                                            {a.code}, {a.airport}
+                                                        </p>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
                                     )}
-
                                 </div>
+
 
                                 {/* TO */}
                                 <div className="pl-6 cursor-pointer relative p-2" onClick={() => setOpen("To")}>
                                     <p className="dept_way">To</p>
-                                    <p className="text-[20px] font-semibold">{toCity}</p>
-                                    <p className="text-[12px] text-[#6B7280] truncate">
-                                        {toCity === "Delhi" && "DEL, Delhi Airport India"}
-                                        {toCity === "Mumbai" && "BOM, Chhatrapati Shivaji International"}
-                                        {toCity === "Bangalore" && "BLR, Kempegowda International"}
+
+                                    <p className="text-[20px] font-semibold">
+                                        {toAirport.city}
+                                    </p>
+                                    <p
+                                        className="text-[12px] text-[#6B7280] max-w-[180px] truncate overflow-hidden whitespace-nowrap"
+                                        title={`${toAirport.code}, ${toAirport.airport}`}
+                                    >
+                                        {toAirport.code}, {toAirport.airport}
                                     </p>
 
-                                    {open === "To" && (
-                                        <div className="absolute top-full mt-2 w-[360px] bg-white
-                                            rounded-xl shadow-[0_6px_20px_rgba(0,0,0,0.15)] z-50">
 
-                                            {/* Search */}
+                                    {open === "To" && (
+                                        <div ref={dropdownRef} className="absolute top-full mt-2 w-[360px] bg-white rounded-xl shadow-lg z-50">
                                             <div className="flex items-center gap-2 p-3 border-b">
-                                                <span className="text-gray-400">🔍</span>
+                                                <img src={Search} className="w-4 h-4" />
                                                 <input
+                                                    value={isSearch}
+                                                    onChange={(e) => setIsSearch(e.target.value)}
                                                     placeholder="Search city or airport"
                                                     className="w-full text-sm outline-none"
                                                 />
                                             </div>
 
-                                            <p className="px-4 pt-3 text-[13px] font-semibold text-gray-700">
-                                                Most Traveled Airports
-                                            </p>
-
                                             <div className="max-h-[260px] overflow-y-auto">
-                                                {airports.map((a) => (
+                                                {filteredAirports.map((a) => (
                                                     <div
                                                         key={a.code}
                                                         onClick={() => {
-                                                            setToCity(a.city);
+                                                            setToAirport(a);   // ✅ IMPORTANT
                                                             setOpen(null);
                                                         }}
-
-                                                        className="flex gap-3 px-4 py-3 cursor-pointer hover:bg-[#F0F6FF]"
+                                                        className="px-4 py-3 cursor-pointer hover:bg-[#F0F6FF]"
                                                     >
-                                                        
-                                                        <div>
-                                                            <p className="text-[14px] font-semibold">
-                                                                {a.city}, {a.country}
-                                                            </p>
-                                                            <p className="text-[12px] text-gray-500">
-                                                                {a.code}, {a.airport}
-                                                            </p>
-                                                        </div>
+                                                        <p className="text-[14px] font-semibold">
+                                                            {a.city}, {a.country}
+                                                        </p>
+                                                        <p className="text-[12px] text-gray-500">
+                                                            {a.code}, {a.airport}
+                                                        </p>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
                                     )}
-
                                 </div>
 
 
 
+
                                 {/* OTHER FIELDS */}
-                                <div className="dept_way cursor-pointer p-2">
+                                {/* <div className="dept_way cursor-pointer p-2">
                                     <div className="flex gap-2">
                                         <span className="leading-none">Departure</span>
                                         <img src={Dropdown} className="w-3 h-3" />
@@ -312,7 +327,55 @@ export function TripType() {
                                         <p className="font-poppins font-normal text-[14px] text-[#484848]">Thursday</p>
                                     </div>
 
+                                    
+                                </div> */}
+                                {/* DEPARTURE */}
+                                {/* DEPARTURE */}
+                                <div
+                                    className="dept_way cursor-pointer p-2"
+                                    onClick={() => setOpenCalendar("departure")}
+                                >
+                                    <div className="flex gap-2">
+                                        <span>Departure</span>
+                                        <img src={Dropdown} className="w-3 h-3" />
+                                    </div>
+
+                                    <div className="font-semibold text-[23px]">
+                                        {dateRange?.from
+                                            ? dayjs(dateRange.from).format("DD MMM 'YY")
+                                            : "Select Date"}
+                                        <p className="text-sm font-normal text-gray-500">
+                                            {dateRange?.from
+                                                ? dayjs(dateRange.from).format("dddd")
+                                                : ""}
+                                        </p>
+                                    </div>
                                 </div>
+
+                                {/* ✅ FULL SCREEN OVERLAY */}
+                                {openCalendar === "departure" && (
+                                    <div
+                                        className="fixed inset-0 z-[99999] bg-black/40 flex justify-center pt-[160px]"
+                                        onClick={() => setOpenCalendar(null)}
+                                    >
+                                        <div
+                                            ref={calendarRef}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="pointer-events-auto"
+                                        >
+                                            <FlightCalendar
+                                                value={dateRange?.from}
+                                                prices={priceMap}
+                                                onSelect={(date) => {
+                                                    setDateRange({ from: date, to: undefined });
+                                                    setOpenCalendar(null);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+
 
                                 <div className="dept_way cursor-pointer p-2">
                                     <div className="flex items-center gap-2">
@@ -351,17 +414,12 @@ export function TripType() {
                                     <TooltipContent side="top" className="text-xs">
                                         Select a special fare if applicable
                                     </TooltipContent>
-
                                 </Tooltip>
-
-
                                 <div
                                     onClick={() => setSelectedFareOption("Regular")}
                                     className={`ml-2 special_fares flex items-center justify-center cursor-pointer ${isRegularSelected
                                         ? "bg-[#0084E8] text-white font-semibold"
-                                        : "bg-[#F5F5F5] text-[#323232] hover:bg-[#d7d3d3]"
-                                        }`}
-                                >
+                                        : "bg-[#F5F5F5] text-[#323232] hover:bg-[#d7d3d3]"}`}>
                                     <span className="font-poppins font-normal text-[12px] leading-[100%] tracking-normal">
                                         Regular
                                     </span>
@@ -402,16 +460,6 @@ export function TripType() {
 
                                     )
                                 }
-                                    // (
-                                    // <Tooltip key={fare.Label}>
-                                    //     <TooltipTrigger asChild>
-                                    //         <div className="ml-2 special_fares flex items-center justify-center cursor-pointer hover:bg-[#d7d3d3]"><span className="font-poppins text-[#323232] font-normal text-[12px] leading-[100%] tracking-normal">{fare.Label}</span></div>
-                                    //     </TooltipTrigger>
-                                    //     <TooltipContent side="bottom" className="text-xs w-[319px] h-[76px] bg-[#fff] text-[#000000]
-                                    //                     opacity-100 rounded-tl-[12px] rounded-tr-[2px] rounded-br-[12px] rounded-bl-[12px] shadow-[0_0_10.52px_0px_#00000026]">
-                                    //         {fare.tip}
-                                    //     </TooltipContent>
-                                    // </Tooltip>)
                                 )}
                             </div>
 
@@ -420,7 +468,11 @@ export function TripType() {
 
                 </div>
                 <div className="flex justify-center p-5 ">
-                    <button className="text-[#fff] w-[258px] height-[49px] border-[1px] border-[#4B5E4B] bg-[#4B5E4B] rounded-[24px] font-poppins font-semibold text-[16px] leading-[100%] tracking-normal">Search</button>
+                    <button
+                        onClick={handleSearch}
+                        className="text-[#fff] w-[258px] height-[49px] border-[1px] border-[#4B5E4B] bg-[#4B5E4B] rounded-[24px] font-poppins font-semibold text-[16px] leading-[100%] tracking-normal">
+                        Search
+                    </button>
                 </div>
 
             </div>

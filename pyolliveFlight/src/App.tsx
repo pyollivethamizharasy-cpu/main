@@ -1,12 +1,12 @@
 // import { useState } from 'react'
 import './App.css'
-import AllFlight from '../src/common/pyollivfly';
+import AppRouter from './Routes/AppRouter';
 
 function App() {
 
   return (
     <div>
-      <AllFlight />
+      <AppRouter />
     </div>
   )
 }
